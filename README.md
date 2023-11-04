@@ -1,2 +1,2 @@
-# Proyecto 2 
+# Pac-man
 Juego
