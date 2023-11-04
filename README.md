@@ -1,2 +1,2 @@
-# PAC_MAN
+# Proyecto 2 
 Juego
