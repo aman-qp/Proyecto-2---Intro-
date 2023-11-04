@@ -56,51 +56,35 @@ error_label = tk.Label(ventana, text="", font=("Fixedsys", 15), fg="#EE9322", bg
 error_label.place(x=500, y=290)
 
 def pantalla_de_juego(nombre_jugador):
-    window1 = tk.Toplevel(ventana)
-    window1.geometry("1000x700")
-    window1.minsize(height=700, width=1000)
-    window1.maxsize(height=700, width=1000)
-    window1.config(background="white")
+    # Inicializar Pygame
+    pygame.init()
 
-    def stop():
-        pygame.mixer.music.stop()
+    # Definir el tamaño de la ventana
+    ventana_ancho = 800
+    ventana_alto = 600
 
-    def play():
-        pygame.mixer.music.load("Multi/sound.mp3")
-        pygame.mixer.music.play()
+    # Crear la ventana
+    ventana = pygame.display.set_mode((ventana_ancho, ventana_alto))
 
-    def regreso():
-        stop()
-        window1.destroy()
+    # Definir el título de la ventana
+    pygame.display.set_caption("Ventana Principal")
+    pygame.mixer.music.load("Multi/sound.mp3")
+    pygame.mixer.music.play()
+    # Bucle principal del juego
+    ejecutando = True
+    while ejecutando:
+        for evento in pygame.event.get():
+            if evento.type == pygame.QUIT:
+                ejecutando = False
 
-    canvas = tk.Canvas(window1, width=1000, height=700, bg="white")
-    canvas.pack()
+        # Puedes agregar aquí la lógica de tu juego
 
-    frame = tk.Frame(window1, bg="#EE9322", width=100, height=100)
-    frame.place(x=25, y=110)
-    nombre = tk.Label(frame, text=f"Player: {nombre_jugador}", font=("Fixedsys", 16), fg="white", bg="#EE9322")
-    nombre.pack(fill="both", expand=False, padx=0, pady=10)
+        # Actualizar la pantalla
+        pygame.display.update()
 
-    frame1 = tk.Frame(window1, bg="#EE9322", width=100, height=100)
-    frame1.place(x=25, y=175)
-    score = tk.Label(frame1, text=f"Score: 0", font=("Fixedsys", 16), fg="white", bg="#EE9322")
-    score.pack(fill="both", expand=False, padx=0, pady=10)
+    # Salir de Pygame
+    pygame.quit()
 
-    frame2 = tk.Frame(window1, borderwidth=3, relief="solid", bg="#219C90", width=100, height=100)
-    frame2.place(x=760, y=10)
-    nivel = tk.Label(frame2, text=f"Nivel 1", font=("Fixedsys", 20), fg="white", bg="#219C90")
-    nivel.pack(fill="both", expand=False, padx=0, pady=10)
-
-    boton = tk.Button(window1, height=2, width=6, background="white", text="Back", font=("Fixedsys", 14),command=regreso)
-    boton.place(x=935, y=6)
-
-    boton = tk.Button(window1, height=2, width=6, background="white", text="Mute", font=("Fixedsys", 14), command=stop)
-    boton.place(x=10, y=6)
-
-    boton = tk.Button(window1, height=2, width=6, background="white", text="Play", font=("Fixedsys", 14), command=play)
-    boton.place(x=70, y=6)
-
-    window1.mainloop()
 
 def acerca_de():
     window3= tk.Toplevel(ventana)
