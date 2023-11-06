@@ -4,6 +4,7 @@ import pygame
 import sys
 import numpy as np
 
+
 pygame.init()
 
 ventana = tk.Tk()
@@ -435,20 +436,19 @@ def pantalla_de_juego():
     tablero[2][33] = 1
     tablero[1][33] = 1
     tablero[0][33] = 1
-
-
-
-
-
-
-
     tablero[0][17] = 2
-    tablero[10][10] = 2
+    tablero[28][10] = 2
+    tablero[34][31] = 2
+    tablero[6][34] = 2
+    tablero[15][20] = 2
+
+
 
     # Iniciar el juego y actualizar el tablero en tiempo real
     pygame.init()
     ventana = pygame.display.set_mode((ancho * 20, alto * 20))
 
+    imagen_pared = pygame.image.load("Multi/Fondo (1).png")
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -459,12 +459,16 @@ def pantalla_de_juego():
         for x in range(ancho):
             for y in range(alto):
                 if tablero[x][y] == 0:
-                    color = (0, 0, 255)  # Azul para las paredes
+                    ventana.blit(imagen_pared, (x * 20, y * 20, 20, 20))
                 elif tablero[x][y] == 1:
-                    color = (255, 255, 255)  # Blanco para el alimento
+                    color = (255, 255, 0)  # Amarillo para la bola
+                    # Dibuja un círculo amarillo en lugar de una imagen
+                    pygame.draw.circle(ventana, color, (x * 20 + 10, y * 20 + 10),5)  # 10 es el nuevo tamaño del radio
+
                 elif tablero[x][y] == 2:
                     color = (255, 0, 0)  # Rojo para las cápsulas
-                pygame.draw.rect(ventana, color, (x * 20, y * 20, 20, 20))
+                    # Dibuja un rectángulo rojo en lugar de una imagen
+                    pygame.draw.circle(ventana, color, (x * 20 + 10, y * 20 + 10),7)  # 10 es el nuevo tamaño del radio
 
         pygame.display.flip()
 
