@@ -4,6 +4,8 @@ import pygame
 import sys
 import numpy as np
 
+bola_1 = []
+bola_2 = []
 
 pygame.init()
 
@@ -449,6 +451,20 @@ def pantalla_de_juego():
     ventana = pygame.display.set_mode((ancho * 20, alto * 20))
 
     imagen_pared = pygame.image.load("Multi/Fondo (1).png")
+    imagen_TNT = pygame.image.load("Multi/TNT (1).png")
+
+    def parpadeo():
+        # Obtén el tiempo actual
+        tiempo_actual = pygame.time.get_ticks()
+
+        # Haz que la imagen parpadee entre imagen_TNT y imagen_pared cada medio segundo
+        if (tiempo_actual // 300) % 2 == 0:
+            imagen = imagen_TNT
+        else:
+            imagen = pygame.Surface((20, 20))  # Crea un cuadro negro de 20x20
+            imagen.fill((0, 0, 0))  # Llena el cuadro con color negro
+        return imagen
+
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -462,15 +478,15 @@ def pantalla_de_juego():
                     ventana.blit(imagen_pared, (x * 20, y * 20, 20, 20))
                 elif tablero[x][y] == 1:
                     color = (255, 255, 0)  # Amarillo para la bola
-                    # Dibuja un círculo amarillo en lugar de una imagen
-                    pygame.draw.circle(ventana, color, (x * 20 + 10, y * 20 + 10),5)  # 10 es el nuevo tamaño del radio
-
+                    pygame.draw.circle(ventana, color, (x * 20 + 10, y * 20 + 10), 4)
+                    bola_1.append((x, y))  # Guardar las coordenadas de la bola 1
                 elif tablero[x][y] == 2:
-                    color = (255, 0, 0)  # Rojo para las cápsulas
-                    # Dibuja un rectángulo rojo en lugar de una imagen
-                    pygame.draw.circle(ventana, color, (x * 20 + 10, y * 20 + 10),7)  # 10 es el nuevo tamaño del radio
+                    imagen = parpadeo()  # Usa la función de parpadeo para obtener la imagen
+                    ventana.blit(imagen, (x * 20, y * 20, 20, 20))
+                    bola_2.append((x, y))  # Guardar las coordenadas de la bola 2
 
         pygame.display.flip()
+
 
 
 def acerca_de():
