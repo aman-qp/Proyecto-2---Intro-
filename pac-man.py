@@ -341,22 +341,100 @@ def pantalla_de_juego():
     tablero[33][12] = 1
     tablero[32][12] = 1
     tablero[31][12] = 1
+    tablero[28][16] = 1
+    tablero[28][17] = 1
+    tablero[28][18] = 1
+    tablero[28][19] = 1
+    tablero[28][20] = 1
 
+    tablero[5][16] = 1
+    tablero[5][15] = 1
+    tablero[5][14] = 1
+    tablero[6][14] = 1
+    tablero[7][14] = 1
+    tablero[7][13] = 1
+    tablero[7][12] = 1
+    tablero[7][11] = 1
+    tablero[7][10] = 1
+    tablero[7][9] = 1
+    tablero[6][9] = 1
+    tablero[5][9] = 1
+    tablero[4][9] = 1
+    tablero[4][8] = 1
+    tablero[4][7] = 1
+    tablero[4][5] = 1
+    tablero[4][6] = 1
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    tablero[0][20] = 1
+    tablero[0][21] = 1
+    tablero[0][22] = 1
+    tablero[0][23] = 1
+    tablero[0][24] = 1
+    tablero[0][25] = 1
+    tablero[1][25] = 1
+    tablero[2][25] = 1
+    tablero[3][25] = 1
+    tablero[4][25] = 1
+    tablero[5][25] = 1
+    tablero[6][25] = 1
+    tablero[7][25] = 1
+    tablero[7][24] = 1
+    tablero[7][23] = 1
+    tablero[7][22] = 1
+    tablero[8][22] = 1
+    tablero[9][22] = 1
+    tablero[10][22] = 1
+    tablero[11][22] = 1
+    tablero[12][22] = 1
+    tablero[13][22] = 1
+    tablero[14][22] = 1
+    tablero[10][21] = 1
+    tablero[10][20] = 1
+    tablero[10][19] = 1
+    tablero[10][18] = 1
+    tablero[7][22] = 1
+    tablero[6][22] = 1
+    tablero[5][22] = 1
+    tablero[5][21] = 1
+    tablero[4][21] = 1
+    tablero[3][21] = 1
+    tablero[2][21] = 1
+    tablero[1][21] = 1
+    tablero[4][26] = 1
+    tablero[4][27] = 1
+    tablero[4][28] = 1
+    tablero[4][29] = 1
+    tablero[5][29] = 1
+    tablero[6][29] = 1
+    tablero[6][30] = 1
+    tablero[6][31] = 1
+    tablero[6][32] = 1
+    tablero[7][29] = 1
+    tablero[8][29] = 1
+    tablero[9][29] = 1
+    tablero[9][28] = 1
+    tablero[10][28] = 1
+    tablero[11][28] = 1
+    tablero[11][27] = 1
+    tablero[11][26] = 1
+    tablero[12][26] = 1
+    tablero[13][26] = 1
+    tablero[14][26] = 1
+    tablero[13][33] = 1
+    tablero[14][33] = 1
+    tablero[12][33] = 1
+    tablero[11][33] = 1
+    tablero[10][33] = 1
+    tablero[9][33] = 1
+    tablero[8][33] = 1
+    tablero[7][33] = 1
+    tablero[6][33] = 1
+    tablero[5][33] = 1
+    tablero[4][33] = 1
+    tablero[3][33] = 1
+    tablero[2][33] = 1
+    tablero[1][33] = 1
+    tablero[0][33] = 1
 
 
 
