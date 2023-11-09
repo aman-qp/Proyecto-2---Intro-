@@ -4,8 +4,6 @@ import pygame
 import sys
 import numpy as np
 
-bola_1 = []
-bola_2 = []
 
 pygame.init()
 
@@ -71,6 +69,64 @@ def pantalla_de_juego():
     # Llenar el tablero con las paredes azules (valor 0)
     tablero.fill(0)
 
+    class Pacman:
+        def __init__(self, x, y, tablero):
+            self.x = x
+            self.y = y
+            self.tablero = tablero
+            self.direction = (0, 0)
+            self.image = pygame.image.load("Multi/pacman.png")
+            self.image = pygame.transform.scale(self.image, (20, 20))
+            self.rect = self.image.get_rect()
+            self.rect.topleft = (x * TILE_SIZE, y * TILE_SIZE)
+            self.is_alive = True
+
+        def move(self):
+            if self.is_alive:
+                new_x = self.x + self.direction[0]
+                new_y = self.y + self.direction[1]
+
+                # Verificar colisiones con las paredes
+                if not self.collides_with_wall(new_x, new_y):
+                    # Dibujar un cuadro negro en la casilla anterior
+                    self.draw_black_square()
+                    self.x = new_x
+                    self.y = new_y
+                    self.rect.topleft = (self.x * TILE_SIZE, self.y * TILE_SIZE)
+
+        def collides_with_wall(self, x, y):
+            # Verificar colisiones con las paredes en el tablero
+            if 0 <= x < ancho and 0 <= y < alto and self.tablero[x][y] == 0:
+                return True
+            return False
+
+        def eat_food(self):
+            if self.is_alive and self.tablero[self.x][self.y] == 1:
+                self.tablero[self.x][self.y] = 4  # Marcar el alimento como comido
+
+        def eat_capsule(self, bola_1, bola_2):
+            if self.is_alive and self.tablero[self.x][self.y] == 2:
+                self.tablero[self.x][self.y] = 4  # Marcar la cápsula como comida
+                if bola_1:
+                    bola_1()
+                if bola_2:
+                    bola_2()
+
+        def draw_black_square(self):
+            # Dibujar un cuadro negro en la casilla anterior
+            surface = pygame.Surface((TILE_SIZE, TILE_SIZE))
+            surface.fill((0, 0, 0))
+            ventana.blit(surface, (self.x * TILE_SIZE, self.y * TILE_SIZE))
+
+        def die(self):
+            self.is_alive = False
+
+        def display(self, screen):
+            if self.is_alive:
+                screen.blit(self.image, self.rect)
+
+    # Constante para el tamaño de las casillas (tiles)
+    TILE_SIZE = 20  # Tamaño de 20x20 píxeles
     # Agregar puntos de alimento (valor 1) y cápsulas (valor 2) en posiciones específicas
     # Por ejemplo, aquí agregamos alimento en las coordenadas (5, 5) y cápsulas en las coordenadas (10, 10)
     tablero[0][5] = 1
@@ -201,8 +257,6 @@ def pantalla_de_juego():
     tablero[15][31] = 1
     tablero[15][32] = 1
     tablero[15][33] = 1
-    tablero[15][34] = 1
-    tablero[15][35] = 1
     tablero[16][33] = 1
     tablero[17][33] = 1
     tablero[18][33] = 1
@@ -443,16 +497,23 @@ def pantalla_de_juego():
     tablero[34][31] = 2
     tablero[6][34] = 2
     tablero[15][20] = 2
+    tablero[24][24] = 2
+    # Inicializar variables para las bolas
+    bola_1 = []
+    bola_2 = []
 
-
+    # Crear una instancia de Pacman en las coordenadas (17, 5)
+    pacman = Pacman(17, 5, tablero)
 
     # Iniciar el juego y actualizar el tablero en tiempo real
     pygame.init()
-    ventana = pygame.display.set_mode((ancho * 20, alto * 20))
+    ventana = pygame.display.set_mode((ancho * TILE_SIZE, alto * TILE_SIZE))
 
     imagen_pared = pygame.image.load("Multi/Fondo (1).png")
     imagen_TNT = pygame.image.load("Multi/TNT (1).png")
-
+    # Cargar la imagen del cuadro negro
+    imagen_negra = pygame.Surface((TILE_SIZE, TILE_SIZE))
+    imagen_negra.fill((0, 0, 0))
     def parpadeo():
         # Obtén el tiempo actual
         tiempo_actual = pygame.time.get_ticks()
@@ -461,31 +522,65 @@ def pantalla_de_juego():
         if (tiempo_actual // 300) % 2 == 0:
             imagen = imagen_TNT
         else:
-            imagen = pygame.Surface((20, 20))  # Crea un cuadro negro de 20x20
+            imagen = pygame.Surface((TILE_SIZE, TILE_SIZE))  # Crea un cuadro negro de 20x20
             imagen.fill((0, 0, 0))  # Llena el cuadro con color negro
         return imagen
 
+
+    clock = pygame.time.Clock()
+    frame_rate = 60  # Cambia la tasa de fotogramas a 60 FPS
+    tiempo_anterior = pygame.time.get_ticks()
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
 
+        # Manejo de entrada del jugador para mover al Pac-Man
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_UP]:
+            pacman.direction = (0, -1)
+        elif keys[pygame.K_DOWN]:
+            pacman.direction = (0, 1)
+        elif keys[pygame.K_LEFT]:
+            pacman.direction = (-1, 0)
+        elif keys[pygame.K_RIGHT]:
+            pacman.direction = (1, 0)
+
+        # Mover al Pac-Man
+        tiempo_actual = pygame.time.get_ticks()
+        if tiempo_actual - tiempo_anterior >= 10000 / frame_rate:
+            pacman.move()
+            tiempo_anterior = tiempo_actual
+
         # Dibujar el tablero en la pantalla
         for x in range(ancho):
             for y in range(alto):
                 if tablero[x][y] == 0:
-                    ventana.blit(imagen_pared, (x * 20, y * 20, 20, 20))
+                    ventana.blit(imagen_pared, (x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE))
                 elif tablero[x][y] == 1:
                     color = (255, 255, 0)  # Amarillo para la bola
-                    pygame.draw.circle(ventana, color, (x * 20 + 10, y * 20 + 10), 4)
-                    bola_1.append((x, y))  # Guardar las coordenadas de la bola 1
+                    pygame.draw.circle(ventana, color, (x * TILE_SIZE + TILE_SIZE // 2, y * TILE_SIZE + TILE_SIZE // 2),
+                                       4)
+                    bola_1.append((x, y))
                 elif tablero[x][y] == 2:
-                    imagen = parpadeo()  # Usa la función de parpadeo para obtener la imagen
-                    ventana.blit(imagen, (x * 20, y * 20, 20, 20))
-                    bola_2.append((x, y))  # Guardar las coordenadas de la bola 2
+                    imagen = parpadeo()
+                    ventana.blit(imagen, (x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE))
+                    bola_2.append((x, y))
+                elif tablero[x][y] == 4:
+                    color = (0, 0, 0)
+                    pygame.draw.circle(ventana, color, (x * TILE_SIZE + TILE_SIZE // 2, y * TILE_SIZE + TILE_SIZE // 2),
+                                       4)
+
+
+        # Dibujar al Pac-Man en la pantalla
+        pacman.display(ventana)
 
         pygame.display.flip()
+        clock.tick(frame_rate)
+
+
+
 
 
 
