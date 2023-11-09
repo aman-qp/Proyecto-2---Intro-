@@ -125,10 +125,57 @@ def pantalla_de_juego():
             if self.is_alive:
                 screen.blit(self.image, self.rect)
 
+    class Fantasma:
+        def __init__(self, x, y, color, tablero):
+            self.estado = True  # Inicialmente vivo
+            self.x = x
+            self.y = y
+            self.color = color
+            self.tablero = tablero
+            self.velocidad = 1  # Velocidad por defecto
+            self.imagen = pygame.image.load(f"Multi/{color}.png")
+            self.imagen = pygame.transform.scale(self.imagen, (20, 20))
+            self.rect = self.imagen.get_rect()
+            self.rect.topleft = (x * TILE_SIZE, y * TILE_SIZE)
+
+        def mover_izquierda(self):
+            if self.estado:
+                new_x = self.x - self.velocidad
+                if not self.colision_con_pared(new_x, self.y):
+                    self.x = new_x
+
+        def mover_derecha(self):
+            if self.estado:
+                new_x = self.x + self.velocidad
+                if not self.colision_con_pared(new_x, self.y):
+                    self.x = new_x
+
+        def mover_arriba(self):
+            if self.estado:
+                new_y = self.y - self.velocidad
+                if not self.colision_con_pared(self.x, new_y):
+                    self.y = new_y
+
+        def mover_abajo(self):
+            if self.estado:
+                new_y = self.y + self.velocidad
+                if not self.colision_con_pared(self.x, new_y):
+                    self.y = new_y
+
+        def colision_con_pared(self, x, y):
+            if 0 <= x < ancho and 0 <= y < alto and self.tablero[x][y] == 0:
+                return True
+            return False
+
+        def display(self, screen):
+            if self.estado:
+                screen.blit(self.imagen, self.rect)
+
     # Constante para el tamaño de las casillas (tiles)
     TILE_SIZE = 20  # Tamaño de 20x20 píxeles
     # Agregar puntos de alimento (valor 1) y cápsulas (valor 2) en posiciones específicas
     # Por ejemplo, aquí agregamos alimento en las coordenadas (5, 5) y cápsulas en las coordenadas (10, 10)
+
     tablero[0][5] = 1
     tablero[1][5] = 1
     tablero[2][5] = 1
@@ -227,25 +274,10 @@ def pantalla_de_juego():
     tablero[37][20] = 1
     tablero[38][20] = 1
     tablero[39][20] = 1
-    tablero[22][21] = 1
-    tablero[20][22] = 1
-    tablero[19][22] = 1
-    tablero[19][23] = 1
-    tablero[19][24] = 1
-    tablero[19][25] = 1
-    tablero[21][22] = 1
-    tablero[22][22] = 1
-    tablero[23][22] = 1
-    tablero[24][22] = 1
-    tablero[25][22] = 1
-    tablero[25][23] = 1
-    tablero[25][24] = 1
-    tablero[20][25] = 1
-    tablero[21][25] = 1
-    tablero[22][25] = 1
-    tablero[23][25] = 1
-    tablero[24][25] = 1
-    tablero[25][25] = 1
+
+    tablero[22][21] = 4
+    tablero[22][22] = 4
+
     tablero[15][23] = 1
     tablero[15][24] = 1
     tablero[15][25] = 1
@@ -497,13 +529,32 @@ def pantalla_de_juego():
     tablero[34][31] = 2
     tablero[6][34] = 2
     tablero[15][20] = 2
-    tablero[24][24] = 2
+
+    tablero[24][24] = 4
+    tablero[23][24] = 4
+    tablero[22][24] = 4
+    tablero[21][24] = 4
+    tablero[20][24] = 4
+
+    tablero[24][23] = 4
+    tablero[23][23] = 4
+    tablero[22][23] = 4
+    tablero[21][23] = 4
+    tablero[20][23] = 4
+
+
     # Inicializar variables para las bolas
     bola_1 = []
     bola_2 = []
 
     # Crear una instancia de Pacman en las coordenadas (17, 5)
     pacman = Pacman(17, 5, tablero)
+
+    # Crear instancias de Fantasmas
+    fantasma_rojo = Fantasma(24, 23, "rojo", tablero)
+    fantasma_celeste = Fantasma(23, 23, "celes", tablero)
+    fantasma_rosa = Fantasma(22, 23, "rosa", tablero)
+    fantasma_naranja = Fantasma(21, 23, "naran", tablero)
 
     # Iniciar el juego y actualizar el tablero en tiempo real
     pygame.init()
@@ -514,6 +565,7 @@ def pantalla_de_juego():
     # Cargar la imagen del cuadro negro
     imagen_negra = pygame.Surface((TILE_SIZE, TILE_SIZE))
     imagen_negra.fill((0, 0, 0))
+
     def parpadeo():
         # Obtén el tiempo actual
         tiempo_actual = pygame.time.get_ticks()
@@ -571,17 +623,16 @@ def pantalla_de_juego():
                     color = (0, 0, 0)
                     pygame.draw.circle(ventana, color, (x * TILE_SIZE + TILE_SIZE // 2, y * TILE_SIZE + TILE_SIZE // 2),
                                        4)
-
+        fantasma_rojo.display(ventana)
+        fantasma_celeste.display(ventana)
+        fantasma_rosa.display(ventana)
+        fantasma_naranja.display(ventana)
 
         # Dibujar al Pac-Man en la pantalla
         pacman.display(ventana)
 
         pygame.display.flip()
         clock.tick(frame_rate)
-
-
-
-
 
 
 def acerca_de():
