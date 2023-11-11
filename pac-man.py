@@ -4,13 +4,10 @@ import pygame
 import sys
 import numpy as np
 
-
 pygame.init()
-
 ventana = tk.Tk()
 ventana.minsize(width=1000, height=700)
 ventana.maxsize(width=1000, height=700)
-
 
 def mostrar_error(mensaje):
     error_label.config(text=mensaje)
@@ -25,14 +22,16 @@ def nombre_jugador():
             file.write(nombre_jugador + "\n")
         nombre.delete(0, "end")
         borrar_error()
-        """stop()
-        play_2()"""
+        """
+        stop()
+        play_2()
+        """
         pantalla_de_juego()
     else:
         mostrar_error("Ingrese un nombre")
 
-
-"""def play():
+"""
+def play():
     pygame.mixer.music.load("Multi/sound.mp3")
     pygame.mixer.music.play()
 
@@ -41,7 +40,8 @@ def stop():
 
 def play_2():
     pygame.mixer.music.load("Multi/sound.mp3")
-    pygame.mixer.music.play()"""
+    pygame.mixer.music.play()
+"""
 
 canvas = tk.Canvas(ventana, height=700, width=1000)
 canvas.pack()
@@ -87,12 +87,18 @@ def pantalla_de_juego():
                 new_y = self.y + self.direction[1]
 
                 # Verificar colisiones con las paredes
-                if not self.collides_with_wall(new_x, new_y):
-                    # Dibujar un cuadro negro en la casilla anterior
-                    self.draw_black_square()
-                    self.x = new_x
-                    self.y = new_y
-                    self.rect.topleft = (self.x * TILE_SIZE, self.y * TILE_SIZE)
+                if not self.collides_with_wall(new_x, new_y) and 0 <= new_x < ancho and 0 <= new_y < alto:
+                    # Verificar si la casilla de destino no es 5
+                    if self.tablero[new_x][new_y] != 5:
+                        # Dibujar un cuadro negro en la casilla anterior
+                        self.draw_black_square()
+                        self.x = new_x
+                        self.y = new_y
+                        self.rect.topleft = (self.x * TILE_SIZE, self.y * TILE_SIZE)
+                        # Marcar el alimento como comido si es 1
+                        self.eat_food()
+                        # Marcar la cápsula como comida si es 2
+                        self.eat_capsule(bola_1, bola_2)
 
         def collides_with_wall(self, x, y):
             # Verificar colisiones con las paredes en el tablero
@@ -173,6 +179,8 @@ def pantalla_de_juego():
 
     # Constante para el tamaño de las casillas (tiles)
     TILE_SIZE = 20  # Tamaño de 20x20 píxeles
+
+
     # Agregar puntos de alimento (valor 1) y cápsulas (valor 2) en posiciones específicas
     # Por ejemplo, aquí agregamos alimento en las coordenadas (5, 5) y cápsulas en las coordenadas (10, 10)
 
@@ -275,8 +283,8 @@ def pantalla_de_juego():
     tablero[38][20] = 1
     tablero[39][20] = 1
 
-    tablero[22][21] = 4
-    tablero[22][22] = 4
+    tablero[22][21] = 5
+    tablero[22][22] = 5
 
     tablero[15][23] = 1
     tablero[15][24] = 1
@@ -530,17 +538,17 @@ def pantalla_de_juego():
     tablero[6][34] = 2
     tablero[15][20] = 2
 
-    tablero[24][24] = 4
-    tablero[23][24] = 4
-    tablero[22][24] = 4
-    tablero[21][24] = 4
-    tablero[20][24] = 4
+    tablero[24][24] = 5
+    tablero[23][24] = 5
+    tablero[22][24] = 5
+    tablero[21][24] = 5
+    tablero[20][24] = 5
 
-    tablero[24][23] = 4
-    tablero[23][23] = 4
-    tablero[22][23] = 4
-    tablero[21][23] = 4
-    tablero[20][23] = 4
+    tablero[24][23] = 5
+    tablero[23][23] = 5
+    tablero[22][23] = 5
+    tablero[21][23] = 5
+    tablero[20][23] = 5
 
 
     # Inicializar variables para las bolas
@@ -558,13 +566,19 @@ def pantalla_de_juego():
 
     # Iniciar el juego y actualizar el tablero en tiempo real
     pygame.init()
-    ventana = pygame.display.set_mode((ancho * TILE_SIZE, alto * TILE_SIZE))
+
+    ventana_ancho= (ancho+20)*TILE_SIZE
+    ventana_alto = alto * TILE_SIZE
+    ventana = pygame.display.set_mode((ventana_ancho, ventana_alto))
+    pygame.display.set_caption("Pacman")
+
 
     imagen_pared = pygame.image.load("Multi/Fondo (1).png")
     imagen_TNT = pygame.image.load("Multi/TNT (1).png")
     # Cargar la imagen del cuadro negro
     imagen_negra = pygame.Surface((TILE_SIZE, TILE_SIZE))
     imagen_negra.fill((0, 0, 0))
+
 
     def parpadeo():
         # Obtén el tiempo actual
@@ -578,10 +592,11 @@ def pantalla_de_juego():
             imagen.fill((0, 0, 0))  # Llena el cuadro con color negro
         return imagen
 
-
     clock = pygame.time.Clock()
     frame_rate = 60  # Cambia la tasa de fotogramas a 60 FPS
     tiempo_anterior = pygame.time.get_ticks()
+
+
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -605,6 +620,8 @@ def pantalla_de_juego():
             pacman.move()
             tiempo_anterior = tiempo_actual
 
+        pygame.draw.rect(ventana, (0, 0, 0), (0, 0, ventana_ancho, ventana_alto))
+
         # Dibujar el tablero en la pantalla
         for x in range(ancho):
             for y in range(alto):
@@ -612,8 +629,7 @@ def pantalla_de_juego():
                     ventana.blit(imagen_pared, (x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE))
                 elif tablero[x][y] == 1:
                     color = (255, 255, 0)  # Amarillo para la bola
-                    pygame.draw.circle(ventana, color, (x * TILE_SIZE + TILE_SIZE // 2, y * TILE_SIZE + TILE_SIZE // 2),
-                                       4)
+                    pygame.draw.circle(ventana, color, (x * TILE_SIZE + TILE_SIZE // 2, y * TILE_SIZE + TILE_SIZE // 2),4)
                     bola_1.append((x, y))
                 elif tablero[x][y] == 2:
                     imagen = parpadeo()
@@ -621,8 +637,14 @@ def pantalla_de_juego():
                     bola_2.append((x, y))
                 elif tablero[x][y] == 4:
                     color = (0, 0, 0)
-                    pygame.draw.circle(ventana, color, (x * TILE_SIZE + TILE_SIZE // 2, y * TILE_SIZE + TILE_SIZE // 2),
-                                       4)
+                    pygame.draw.circle(ventana, color, (x * TILE_SIZE + TILE_SIZE // 2, y * TILE_SIZE + TILE_SIZE // 2),4)
+                elif tablero[x][y] == 5:
+                    color = (0, 0, 0)
+                    pygame.draw.circle(ventana, color, (x * TILE_SIZE + TILE_SIZE // 2, y * TILE_SIZE + TILE_SIZE // 2),4)
+
+        #pygame.draw.rect(ventana, (255, 255, 255), (0, 0, ventana_ancho, ventana_alto))
+
+        #Dibujar los fantasmas en la pantalla
         fantasma_rojo.display(ventana)
         fantasma_celeste.display(ventana)
         fantasma_rosa.display(ventana)
