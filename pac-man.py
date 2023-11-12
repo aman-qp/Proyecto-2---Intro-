@@ -1,20 +1,24 @@
 import tkinter as tk
-from PIL import Image, ImageTk, ImageFilter
+from PIL import Image, ImageTk
 import pygame
 import sys
 import numpy as np
-from pygame.locals import QUIT, MOUSEBUTTONDOWN
+from pygame.locals import MOUSEBUTTONDOWN
+import random
 
 pygame.init()
 ventana = tk.Tk()
 ventana.minsize(width=1000, height=700)
 ventana.maxsize(width=1000, height=700)
 
+
 def mostrar_error(mensaje):
     error_label.config(text=mensaje)
 
+
 def borrar_error():
     error_label.config(text="")
+
 
 def nombre_jugador():
     nombre_jugador = nombre.get().strip()
@@ -25,12 +29,15 @@ def nombre_jugador():
     else:
         mostrar_error("Ingrese un nombre")
 
+
 def play():
     pygame.mixer.music.load("Multi/sound.mp3")
     pygame.mixer.music.play()
 
+
 def stop():
     pygame.mixer.music.stop()
+
 
 def play_2():
     pygame.mixer.music.load("Multi/sound.mp3")
@@ -45,16 +52,18 @@ Fondo = Fondo.resize((1000, 700))
 imagen_tk = ImageTk.PhotoImage(Fondo)
 imagen_id = canvas.create_image(0, 0, anchor="nw", image=imagen_tk)
 
-canvas.create_text(430, 263, text="Player:",font=("Fixedsys", 20),fill="white")
+canvas.create_text(430, 263, text="Player:", font=("Fixedsys", 20), fill="white")
 nombre = tk.Entry(ventana, font=("Fixedsys", 15))
 nombre.place(x=500, y=255)
 
 error_label = tk.Label(ventana, text="", font=("Fixedsys", 15), fg="#EE9322", bg="black")
 error_label.place(x=500, y=290)
 
+
 def guardar_puntaje(nombre_jugador, puntos):
     with open("Players.txt", "a") as file:
         file.write(f"{nombre_jugador} - Puntos: {puntos}\n")
+
 
 def pantalla_de_juego(nombre_jugador):
     # Definir dimensiones del tablero
@@ -80,7 +89,6 @@ def pantalla_de_juego(nombre_jugador):
             self.rect.topleft = (x * TILE_SIZE, y * TILE_SIZE)
             self.is_alive = True
 
-
         def move(self):
             if self.is_alive:
                 new_x = self.x + self.direction[0]
@@ -102,7 +110,7 @@ def pantalla_de_juego(nombre_jugador):
                         # Marcar la cápsula como comida si es 3
                         self.eat_food()
 
-        def collides_with_wall(self, x, y):
+        def collides_with_wall(self,x, y):
             # Verificar colisiones con las paredes en el tablero
             if 0 <= x < ancho and 0 <= y < alto and self.tablero[x][y] == 0:
                 return True
@@ -139,6 +147,12 @@ def pantalla_de_juego(nombre_jugador):
             if self.is_alive:
                 screen.blit(self.image, self.rect)
 
+        def check_collision(self, fantasmas):
+            for fantasma in fantasmas:
+                if fantasma.estado and self.rect.colliderect(fantasma.rect):
+                    return True
+            return False
+
     class Fantasma:
         def __init__(self, x, y, color, tablero):
             self.estado = True  # Inicialmente vivo
@@ -151,43 +165,35 @@ def pantalla_de_juego(nombre_jugador):
             self.imagen = pygame.transform.scale(self.imagen, (20, 20))
             self.rect = self.imagen.get_rect()
             self.rect.topleft = (x * TILE_SIZE, y * TILE_SIZE)
-
-        def mover_izquierda(self):
-            if self.estado:
-                new_x = self.x - self.velocidad
-                if not self.colision_con_pared(new_x, self.y):
-                    self.x = new_x
-
-        def mover_derecha(self):
-            if self.estado:
-                new_x = self.x + self.velocidad
-                if not self.colision_con_pared(new_x, self.y):
-                    self.x = new_x
-
-        def mover_arriba(self):
-            if self.estado:
-                new_y = self.y - self.velocidad
-                if not self.colision_con_pared(self.x, new_y):
-                    self.y = new_y
-
-        def mover_abajo(self):
-            if self.estado:
-                new_y = self.y + self.velocidad
-                if not self.colision_con_pared(self.x, new_y):
-                    self.y = new_y
-
-        def colision_con_pared(self, x, y):
-            if 0 <= x < ancho and 0 <= y < alto and self.tablero[x][y] == 0:
-                return True
-            return False
-
         def display(self, screen):
             if self.estado:
                 screen.blit(self.imagen, self.rect)
 
+        def move(self):
+            directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
+            possible_moves = []
+
+            for direction in directions:
+                next_x = self.x + direction[0]
+                next_y = self.y + direction[1]
+
+                # Verificar si la siguiente posición es válida (no es una pared)
+                if 0 <= next_x < len(self.tablero) and 0 <= next_y < len(self.tablero[0]) and self.tablero[next_x][next_y] != 0:
+                    possible_moves.append(direction)
+
+            if possible_moves:
+                self.direction = random.choice(possible_moves)
+
+        def update(self):
+            if self.estado:
+                self.move()
+                self.x += self.direction[0] * self.velocidad
+                self.y += self.direction[1] * self.velocidad
+                self.rect.topleft = (self.x * TILE_SIZE, self.y * TILE_SIZE)
+
+
     # Constante para el tamaño de las casillas (tiles)
     TILE_SIZE = 20  # Tamaño de 20x20 píxeles
-
 
     # Agregar puntos de alimento (valor 1) y cápsulas (valor 2) en posiciones específicas
     # Por ejemplo, aquí agregamos alimento en las coordenadas (5, 5) y cápsulas en las coordenadas (10, 10)
@@ -558,12 +564,11 @@ def pantalla_de_juego(nombre_jugador):
     tablero[21][23] = 5
     tablero[20][23] = 5
 
-
     # Inicializar variables para las bolas
     bola_1 = []
     bola_2 = []
 
-    # Crear una instancia de Pacman en las coordenadas (17, 5)
+    # Crear una instancia de Pacman
     pacman = Pacman(17, 5, tablero)
 
     # Crear instancias de Fantasmas
@@ -580,7 +585,6 @@ def pantalla_de_juego(nombre_jugador):
     ventana_alto = alto * TILE_SIZE
     ventana = pygame.display.set_mode((ventana_ancho, ventana_alto))
     pygame.display.set_caption("Pacman")
-
 
     imagen_pared = pygame.image.load("Multi/Fondo (1).png")
     imagen_TNT = pygame.image.load("Multi/TNT (1).png")
@@ -606,17 +610,17 @@ def pantalla_de_juego(nombre_jugador):
     frame_rate = 60  # Cambia la tasa de fotogramas a 60 FPS
     tiempo_anterior = pygame.time.get_ticks()
 
-
     button_rect = pygame.Rect(ventana_ancho - 110, 10, 100, 40)
 
     def draw_exit_button():
         # Dibujar el botón de salida en la esquina superior derecha
         font = pygame.font.Font(None, 36)
-        button_text = font.render("Salir", True, (255, 255, 255))
+        button_text = font.render("Salir", True, (0, 0, 0))
         button_rect = button_text.get_rect()
         button_rect.topleft = (ventana_ancho - button_rect.width - 10, 10)
         ventana.blit(button_text, button_rect)
-
+        pygame.draw.rect(ventana, (255, 0, 0), button_rect, 0)
+        ventana.blit(button_text, button_rect.topleft)
 
     while True:
         for event in pygame.event.get():
@@ -628,6 +632,7 @@ def pantalla_de_juego(nombre_jugador):
                     guardar_puntaje(nombre_jugador, puntos)
                     pygame.quit()
                     #sys.exit()
+
 
         # Manejo de entrada del jugador para mover al Pac-Man
         keys = pygame.key.get_pressed()
@@ -642,9 +647,29 @@ def pantalla_de_juego(nombre_jugador):
 
         # Mover al Pac-Man
         tiempo_actual = pygame.time.get_ticks()
-        if tiempo_actual - tiempo_anterior >= 5000 / frame_rate:
+        if tiempo_actual - tiempo_anterior >= 10000 / frame_rate:
             pacman.move()
+            # Actualizar la posición de los fantasmas
+            fantasma_rojo.update()
+            fantasma_celeste.update()
+            fantasma_rosa.update()
+            fantasma_naranja.update()
             tiempo_anterior = tiempo_actual
+
+        # Verificar colisiones con fantasmas
+        if pacman.check_collision([fantasma_rojo, fantasma_celeste, fantasma_rosa, fantasma_naranja]):
+            # Mostrar el mensaje en el centro de la ventana
+            font_perdiste = pygame.font.Font(None, 72)
+            mensaje_perdiste = font_perdiste.render("PERDISTE", True, (255, 0, 0))
+            mensaje_rect = mensaje_perdiste.get_rect(center=(ventana_ancho // 2, ventana_alto // 2))
+            ventana.blit(mensaje_perdiste, mensaje_rect)
+
+            pygame.display.flip()
+
+            # Esperar un momento antes de cerrar la ventana
+            pygame.time.delay(5000)  # Pausa de 2 segundos
+            pygame.quit()
+            sys.exit()
 
         pygame.draw.rect(ventana, (0, 0, 0), (0, 0, ventana_ancho, ventana_alto))
 
@@ -670,8 +695,25 @@ def pantalla_de_juego(nombre_jugador):
                     color = (0, 0, 0)
                     pygame.draw.circle(ventana, color, (x * TILE_SIZE + TILE_SIZE // 2, y * TILE_SIZE + TILE_SIZE // 2),4)
 
+        # Verificar si todos los 1 han sido cambiados por 4
+        if all(1 not in fila for fila in tablero):
+            # Mostrar el mensaje en el centro del lado derecho de la ventana
+            font = pygame.font.Font(None, 36)
+            mensaje_ganador = font.render("¡Felicidades, ganaste!", True, (255, 255, 255))
+            mensaje_rect = mensaje_ganador.get_rect(topleft=(880, 315))
+            ventana.blit(mensaje_ganador, mensaje_rect)
+
+            # Añadir un botón "Siguiente nivel"
+            font_boton = pygame.font.Font(None, 30)
+            texto_boton = font_boton.render("Siguiente nivel", True, (0x61, 0xA3, 0xBA))
+            boton_rect = texto_boton.get_rect(topleft=(950, 360))
+
+            # Dibujar el botón
+            pygame.draw.rect(ventana, (0, 128, 255), boton_rect)
+            ventana.blit(texto_boton, boton_rect.topleft)
 
         #Dibujar los fantasmas en la pantalla
+
         fantasma_rojo.display(ventana)
         fantasma_celeste.display(ventana)
         fantasma_rosa.display(ventana)
@@ -687,21 +729,21 @@ def pantalla_de_juego(nombre_jugador):
         font = pygame.font.Font(None, 36)
         text = font.render(f"Player: {nombre_jugador}", True, (0, 0, 0))
         text_rect = text.get_rect(topleft=(850, 90))
-        pygame.draw.rect(ventana, (0, 255, 255), text_rect, 0)
+        pygame.draw.rect(ventana, (0x61, 0xA3, 0xBA), text_rect, 0)
         ventana.blit(text, text_rect.topleft)
 
         # Muestrar puntos en la pantalla
         font = pygame.font.Font(None, 36)
         text = font.render(f"Points: {puntos}", True, (0, 0, 0))
         text_rect = text.get_rect(topleft=(850, 130))
-        pygame.draw.rect(ventana, (0, 255, 255), text_rect, 0)
+        pygame.draw.rect(ventana, (0x61, 0xA3, 0xBA), text_rect, 0)
         ventana.blit(text, text_rect.topleft)
 
         # Muestrar nivel en la pantalla
         font = pygame.font.Font(None, 36)
         text = font.render(f"Level: 1", True, (0, 0, 0))
         text_rect = text.get_rect(topleft=(850, 50))
-        pygame.draw.rect(ventana, (0, 255, 255), text_rect, 0)
+        pygame.draw.rect(ventana, (0x61, 0xA3, 0xBA), text_rect, 0)
         ventana.blit(text, text_rect.topleft)
 
         pygame.display.flip()
@@ -748,22 +790,20 @@ def acerca_de():
     boton.place(x=487, y=555)
     window3.mainloop()
 
-
-
 def ayuda():
     window2= tk.Toplevel(ventana)
-    window2.minsize(height=600, width=500)
-    window2.maxsize(height=600, width=500)
+    window2.minsize(height=650, width=550)
+    window2.maxsize(height=650, width=550)
     window2.config(background="#61A3BA")
 
-    canvas = tk.Canvas(window2, width=500, height=600, bg="#61A3BA")
+    canvas = tk.Canvas(window2, width=550, height=650, bg="#61A3BA")
     canvas.pack()
 
-    texto = tk.Label(canvas,text="--Indicaciones a tomar en cuenta--\n\n1.Ingrese un nombre antes de empezar,\nde lo contario el juego no empezará.\n2.Los movimientos del pacman se realizan\ncon las flechas del teclado.\n3.Asegurese que la versión de python sea\nigual a la que el juego requiere (3.11).\n4.El objetivo principal es comerse todos los \npuntos amarillos a lo largo de el mapa.\n5.Para eliminar a los fantasmas debera\ncomerse un TNT para tener la \nhabilidad de comerselos.\n6.Evita chocar con los fantasmas sin el \n poder o moriras.\n7.Las manzanas suman 50 puntos más.",font=("bahnschrift condensed", 18), background="#61A3BA")
-    texto.place(x=85, y=25)
+    texto = tk.Label(canvas,text="Este famoso juego consiste en personificar a Pac-Man–quien\nestá en un laberinto neón– y su objetivo es recorrer el espacio\n para comer todas las bolas “energizantes” \nsin ser atrapado por los fantasmas.\n\n--Indicaciones a tomar en cuenta--\n\n1.Ingrese un nombre antes de empezar,\nde lo contario el juego no empezará.\n2.Los movimientos del pacman se realizan\ncon las flechas del teclado.\n3.Asegurese que la versión de python sea\nigual a la que el juego requiere (3.11).\n4.El objetivo principal es comerse todos los \npuntos amarillos a lo largo de el mapa.\n5.Para eliminar a los fantasmas debera\ncomerse un TNT para tener la \nhabilidad de comerselos.\n6.Evita chocar con los fantasmas sin el \n poder o moriras.\n7.Las manzanas suman 50 puntos más.",font=("bahnschrift condensed", 18), background="#61A3BA")
+    texto.place(x=10, y=25)
 
     boton = tk.Button(window2, height=2, width=6, background="white", text="Back", font=("Fixedsys", 14),command=window2.destroy)
-    boton.place(x=437, y=553)
+    boton.place(x=487, y=603)
 
 #Pantalla de salon de la fama
 def salon_de_la_fama():
@@ -795,7 +835,6 @@ def salon_de_la_fama():
         label = tk.Label(canvas, text=f"{i}. {nombre.strip()}", font=("Fixedsys", 18), background="#61A3BA")
         label.place(x=80, y=y_position)
         y_position += 50
-
 
 boton_juego = tk.Button(ventana, height=1, width=15, bg="#3D30A2", borderwidth=8, text="Start Game", font=("Fixedsys", 30), command=nombre_jugador)
 boton_ayuda = tk.Button(ventana, height=2, width=16, bg="#3D30A2", borderwidth=8, text="Ayuda", font=("Fixedsys", 17),command=ayuda)
