@@ -659,8 +659,8 @@ def pantalla_de_juego(nombre_jugador):
         # Verificar colisiones con fantasmas
         if pacman.check_collision([fantasma_rojo, fantasma_celeste, fantasma_rosa, fantasma_naranja]):
             # Mostrar el mensaje en el centro de la ventana
-            font_perdiste = pygame.font.Font(None, 72)
-            mensaje_perdiste = font_perdiste.render("PERDISTE", True, (255, 0, 0))
+            font_perdiste = pygame.font.Font(None, 80)
+            mensaje_perdiste = font_perdiste.render("PERDISTE!", True, (255, 0, 0))
             mensaje_rect = mensaje_perdiste.get_rect(center=(ventana_ancho // 2, ventana_alto // 2))
             ventana.blit(mensaje_perdiste, mensaje_rect)
 
