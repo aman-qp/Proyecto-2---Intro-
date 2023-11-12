@@ -647,7 +647,7 @@ def pantalla_de_juego(nombre_jugador):
 
         # Mover al Pac-Man
         tiempo_actual = pygame.time.get_ticks()
-        if tiempo_actual - tiempo_anterior >= 10000 / frame_rate:
+        if tiempo_actual - tiempo_anterior >= 12000 / frame_rate:
             pacman.move()
             # Actualizar la posición de los fantasmas
             fantasma_rojo.update()
@@ -667,9 +667,8 @@ def pantalla_de_juego(nombre_jugador):
             pygame.display.flip()
 
             # Esperar un momento antes de cerrar la ventana
-            pygame.time.delay(5000)  # Pausa de 2 segundos
-            pygame.quit()
-            sys.exit()
+            pygame.time.delay(8000)
+
 
         pygame.draw.rect(ventana, (0, 0, 0), (0, 0, ventana_ancho, ventana_alto))
 
@@ -705,12 +704,13 @@ def pantalla_de_juego(nombre_jugador):
 
             # Añadir un botón "Siguiente nivel"
             font_boton = pygame.font.Font(None, 30)
-            texto_boton = font_boton.render("Siguiente nivel", True, (0x61, 0xA3, 0xBA))
+            texto_boton = font_boton.render("Siguiente nivel", True, (0,0,0))
             boton_rect = texto_boton.get_rect(topleft=(950, 360))
 
             # Dibujar el botón
-            pygame.draw.rect(ventana, (0, 128, 255), boton_rect)
+            pygame.draw.rect(ventana, (0x61, 0xA3, 0xBA), boton_rect)
             ventana.blit(texto_boton, boton_rect.topleft)
+            pygame.time.delay(5000)
 
         #Dibujar los fantasmas en la pantalla
 
@@ -841,14 +841,11 @@ boton_ayuda = tk.Button(ventana, height=2, width=16, bg="#3D30A2", borderwidth=8
 boton_Acerca_de = tk.Button(ventana, height=2, width=12, bg="#3D30A2", borderwidth=8, text="Acerca de.", font=("Fixedsys", 17), command=acerca_de)
 boton_salon = tk.Button(ventana, height=2, width=16, bg="#3D30A2", borderwidth=8, text="Salon de la fama", font=("Fixedsys", 17),command=salon_de_la_fama)
 boton_salir = tk.Button(ventana, height=2, width=5, bg="#3D30A2", borderwidth=8, text="Salir", font=("Fixedsys", 16), command= ventana.destroy)
-boton_play = tk.Button(ventana, height=2, width=5, bg="#3D30A2", borderwidth=8, text="Play", font=("Fixedsys", 16))
-boton_mute = tk.Button(ventana, height=2, width=5, bg="#3D30A2", borderwidth=8, text="Mute", font=("Fixedsys", 16))
+
 
 boton_juego.place(x=320, y=330)
 boton_ayuda.place(x=60, y=500)
 boton_Acerca_de.place(x=405, y=500)
 boton_salon.place(x=680, y=500)
 boton_salir.place(x=935, y=645)
-boton_play.place(x=4, y=645)
-boton_mute.place(x=70, y=645)
 ventana.mainloop()
